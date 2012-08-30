@@ -2,8 +2,22 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 ROOT_DIR = File.join(File.dirname(__FILE__),'..')
 
+ENV['RACK_ENV'] ||= 'test'
+ENV['CLIENT'] ||= 'client'
+
 require 'test/unit'
 require File.join(ROOT_DIR,'lib','riak_rolling_average')
+
+require 'test/ripple_test_server'
+Ripple::TestServer.setup
+#def run_at_exit
+#  at_exit do
+#    if $! || Test::Unit.run?
+#      Ripple::TestServer.destroy
+#    end
+#  end
+#end
+#run_at_exit
 
 # clear out all data
 Riak.disable_list_keys_warnings = true
