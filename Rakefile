@@ -46,7 +46,14 @@ namespace(:example) do
     data = File.readlines(File.join(ROOT_DIR,'test','data'))[ENV['ROW'].to_i]
     count = 0
     data.split(',').each do |value|
-      DataPointDocument.create(:value => value.to_i)
+      dp = DataPoint.new(
+        :value => value.to_i,
+        :unit => 'bytes',
+        :owner => 'test_app',
+        :name => 'storage-used',
+        :time => Time.now
+      )
+      DataPointDocument.create(:data_point => dp)
       count += 1
     end
     puts count.to_s

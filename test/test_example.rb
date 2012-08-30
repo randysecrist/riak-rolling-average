@@ -8,7 +8,7 @@ class TestExample < Test::Unit::TestCase
     # start some external clients to add values to the Riak server
     5.times do |t|
       pids << fork {
-        `bundle exec rake example:create_data_points ROW=#{t} CLIENT=local#{t}`
+        `bundle exec rake example:create_data_points ROW=#{t} CLIENT=local#{t} --trace`
       }
     end
     pids.each do |pid|
