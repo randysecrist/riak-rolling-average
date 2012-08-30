@@ -15,6 +15,7 @@ class StatisticDocument
   end
 
   def sum
+    return 0 if self.client_data == nil
     begin
       self.client_data.map{|h| h[1]['sum']}.inject(0, :+)
 
@@ -24,6 +25,7 @@ class StatisticDocument
   end
 
   def count
+    return 0 if self.client_data == nil
     begin
       self.client_data.map{|h| h[1]['count']}.inject(0, :+)
 
@@ -33,7 +35,8 @@ class StatisticDocument
   end
 
   def average
-    self.sum / self.count
+    return self.sum / self.count unless self.count == 0
+    return 0
   end
 
   on_conflict do |siblings, c|
