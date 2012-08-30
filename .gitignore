@@ -12,7 +12,6 @@ current
 .idea/
 public/docs/*
 config/oauth.yml
-config/ripple.yml
 vendor/bundle
 *.swp
 tmp/**
