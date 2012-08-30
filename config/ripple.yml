@@ -1,0 +1,14 @@
+development:
+  host: 127.0.0.1
+  http_port: 8098
+  namespace: local_ns~
+  #protocol: pbc
+
+test:
+  host: 127.0.0.1
+  http_port: 9000
+  pb_port: 9001
+  handoff_port: 9002
+  namespace: test_rolling_avg~ 
+  #protocol: pbc
+  #date_format: :iso8601_ms
