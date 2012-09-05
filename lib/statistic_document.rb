@@ -4,15 +4,9 @@ class StatisticDocument
   include Ripple::Document
   property :client_data, Hash, :presence => true
 
-  def update_with(data_point)
-    data_point = DataPoint.new(:value => data_point) unless data_point.is_a? DataPoint
-    self.reload
-    self.client_data ||= {}
-    statistic = self.client_data[Client.id] || {'sum' => 0, 'count' => 0}
-    statistic['sum'] = (statistic['sum'] + data_point.value).to_f
-    statistic['count']   = (statistic['count'] + 1)
-    self.client_data[Client.id] = statistic
-    self.save
+  def average
+    return self.sum / self.count unless self.count == 0
+    return 0
   end
 
   def sum
@@ -35,9 +29,17 @@ class StatisticDocument
     end
   end
 
-  def average
-    return self.sum / self.count unless self.count == 0
-    return 0
+  # --- CRDT State Management --- #
+
+  def update_with(data_point)
+    data_point = DataPoint.new(:value => data_point) unless data_point.is_a? DataPoint
+    self.reload
+    self.client_data ||= {}
+    statistic = self.client_data[Client.id] || {'sum' => 0, 'count' => 0}
+    statistic['sum'] = (statistic['sum'] + data_point.value).to_f
+    statistic['count'] = (statistic['count'] + 1)
+    self.client_data[Client.id] = statistic
+    self.save
   end
 
   on_conflict do |siblings, c|
@@ -50,5 +52,6 @@ class StatisticDocument
     end
     self.client_data = resolved
   end
+
 end
 
