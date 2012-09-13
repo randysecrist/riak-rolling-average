@@ -1,6 +1,6 @@
 require 'ripple'
 
-class StatisticDocument
+class CounterDocument
   include Ripple::Document
   property :client_data, Hash, :presence => true
 
@@ -32,13 +32,19 @@ class StatisticDocument
   # --- CRDT State Management --- #
 
   def update_with(data_point)
-    data_point = DataPoint.new(:value => data_point) unless data_point.is_a? DataPoint
+    data_point = DataPoint.new(:value => data_point, :time => Time.now) unless data_point.is_a? DataPoint
     self.reload
     self.client_data ||= {}
-    statistic = self.client_data[Client.id] || {'sum' => 0, 'count' => 0}
-    statistic['sum'] = (statistic['sum'] + data_point.value).to_f
-    statistic['count'] = (statistic['count'] + 1)
-    self.client_data[Client.id] = statistic
+    counter = self.client_data[Client.id] || {'sum' => 0, 'count' => 0}
+
+    # determine which resolution we are updating
+    #  look at how it is created (enum of possible types)
+    #  (year (1), month (12), day (365), hours (8760)
+    # 219000 hour keys after 25 years; log2(n) = 17.6 ops, days worth of hour data - 422.4 ops of an object in mem (worst case)
+
+    counter['sum'] = (counter['sum'] + data_point.value).to_f
+    counter['count'] = (counter['count'] + 1)
+    self.client_data[Client.id] = counter
     self.save
   end
 

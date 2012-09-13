@@ -9,8 +9,8 @@ class DataPointDocument
 
   def update_statistics
     id = 'data_point_document_statistic'
-    statistic = StatisticDocument.find(id) || StatisticDocument.new
-    statistic.key = id
-    statistic.update_with self.data_point
+    counter = CounterDocument.find(id) || CounterDocument.new
+    counter.key = id
+    counter.update_with self.data_point
   end
 end

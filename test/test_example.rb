@@ -17,9 +17,15 @@ class TestExample < Test::Unit::TestCase
     puts "Processed data import in #{Time.now - start_time} seconds."
   end
 
-  def test_concurrent_average
-    statistic = StatisticDocument.find('data_point_document_statistic')
-    assert_equal 5000,  statistic.count
-    assert_equal 49.672, statistic.average
+  def test_counter_operations
+    counter = CounterDocument.find('data_point_document_statistic')
+    expected_count = 5000
+    expected_sum = 2172267113.0
+    expected_avg = expected_sum / expected_count
+
+    # assertions
+    assert_equal expected_count, counter.count
+    assert_equal expected_sum, counter.sum
+    assert_equal expected_avg, counter.average
   end
 end

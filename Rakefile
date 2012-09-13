@@ -42,16 +42,19 @@ task :default => :test
 namespace(:example) do
   task :create_data_points do
     require File.join(ROOT_DIR,'lib','riak_rolling_average')
+    require File.join(ROOT_DIR,'lib','data_set')
 
-    data = File.readlines(File.join(ROOT_DIR,'test','data'))[ENV['ROW'].to_i]
+    #data = File.readlines(File.join(ROOT_DIR,'test','data'))[ENV['ROW'].to_i]
+    data = DataSet.deserialize(JSON.parse(File.read(File.join(ROOT_DIR,'test','data',"split_#{ENV['ROW']}")))).data
+
     count = 0
-    data.split(',').each do |value|
+    data.each do |triple|
       dp = DataPoint.new(
-        :value => value.to_i,
         :unit => 'bytes',
-        :owner => 'test_app',
-        :name => 'storage-used',
-        :time => Time.now
+        :name => 'storage',
+        :value => triple.data['bytes'],
+        :owner => triple.application,
+        :time => triple.data['time']
       )
       DataPointDocument.create(:data_point => dp)
       count += 1
