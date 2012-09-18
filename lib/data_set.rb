@@ -25,7 +25,7 @@ class DataSet
 
   def self.generate_data_for(user, application, count)
     ds = DataSet.new
-    ds.generate_data_for(user,application, count)
+    ds.generate_data_for(user, application, count)
   end
 
   def generate_data_for(user, application, count)

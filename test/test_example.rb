@@ -14,7 +14,7 @@ class TestExample < Test::Unit::TestCase
     pids.each do |pid|
       Process.waitpid(pid)
     end
-    puts "Processed data import in #{Time.now - start_time} seconds."
+    #puts "Processed data import in #{Time.now - start_time} seconds."
   end
 
   def test_counter_operations

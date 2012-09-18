@@ -12,20 +12,20 @@ class CounterDocument
   def sum
     return 0 if self.client_data == nil
     begin
-      self.client_data.map{|h| h[1]['sum']}.inject(0, :+)
+      self.client_data.map{|h| h[1]['total']['sum']}.inject(0, :+)
 
     rescue TypeError
-      raise self.client_data.map{|h| h[1]['sum']}.inspect
+      raise self.client_data.map{|h| h[1]['total']['sum']}.inspect
     end
   end
 
   def count
     return 0 if self.client_data == nil
     begin
-      self.client_data.map{|h| h[1]['count']}.inject(0, :+)
+      self.client_data.map{|h| h[1]['total']['count']}.inject(0, :+)
 
     rescue TypeError
-      raise self.client_data.map{|h| h[1]['count']}.inspect
+      raise self.client_data.map{|h| h[1]['total']['count']}.inspect
     end
   end
 
@@ -35,15 +35,29 @@ class CounterDocument
     data_point = DataPoint.new(:value => data_point, :time => Time.now) unless data_point.is_a? DataPoint
     self.reload
     self.client_data ||= {}
-    counter = self.client_data[Client.id] || {'sum' => 0, 'count' => 0}
 
-    # determine which resolution we are updating
-    #  look at how it is created (enum of possible types)
-    #  (year (1), month (12), day (365), hours (8760)
-    # 219000 hour keys after 25 years; log2(n) = 17.6 ops, days worth of hour data - 422.4 ops of an object in mem (worst case)
+    counter = self.client_data[Client.id] || { 'daily' => {}, 'monthly' => {}, 'total' => { 'sum' => 0, 'count' => 0 } }
 
-    counter['sum'] = (counter['sum'] + data_point.value).to_f
-    counter['count'] = (counter['count'] + 1)
+    # update daily
+    day_key = "#{data_point.time.strftime("%Y%m%d")}"
+    day_stats = counter['daily'][day_key] || { 'sum' => 0, 'count' => 0 }
+    day_stats['sum'] = (day_stats['sum'] + data_point.value).to_f
+    day_stats['count'] = (day_stats['count'] + 1)
+    counter['daily'][day_key] = day_stats
+
+    # update monthly
+    month_key = "#{data_point.time.strftime("%Y%m")}"
+    month_stats = counter['monthly'][month_key] || { 'sum' => 0, 'count' => 0 }
+    month_stats['sum'] = (month_stats['sum'] + data_point.value).to_f
+    month_stats['count'] = (month_stats['count'] + 1)
+    counter['monthly'][month_key] = month_stats
+
+    # update total
+    total_stats = counter['total']
+    total_stats['sum'] = (total_stats['sum'] + data_point.value).to_f
+    total_stats['count'] = (total_stats['count'] + 1)
+
+    # update doc & save
     self.client_data[Client.id] = counter
     self.save
   end
@@ -53,7 +67,7 @@ class CounterDocument
     siblings.reject!{|s| s.client_data == nil}
     siblings.each do |sibling|
       resolved.merge! sibling.client_data do |client_id, resolved_value, sibling_value|
-        resolved_value['count'] > sibling_value['count'] ? resolved_value : sibling_value
+        resolved_value['total']['count'] > sibling_value['total']['count'] ? resolved_value : sibling_value
       end
     end
     self.client_data = resolved
