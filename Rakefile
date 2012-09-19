@@ -53,8 +53,9 @@ namespace(:example) do
         :unit => 'bytes',
         :name => 'storage',
         :value => triple.data['bytes'],
-        :owner => triple.application,
-        :time => triple.data['time']
+        :time => triple.data['time'],
+        :application => triple.application,
+        :user => triple.user
       )
       DataPointDocument.create(:data_point => dp)
       count += 1

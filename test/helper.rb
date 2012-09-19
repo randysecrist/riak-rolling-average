@@ -19,3 +19,4 @@ DataPointDocument.destroy_all
 # allow sibling documents so that we can calculate statistics in an
 # eventually consistent manner
 CounterDocument.bucket.allow_mult = true
+CounterDocument.bucket.props = {:pr => 2, :pw => 2}

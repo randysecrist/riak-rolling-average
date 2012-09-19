@@ -18,8 +18,11 @@ class DataPoint
   # the time the metric was recorded
   property :time, Time
 
-  # the owning entity of the metric
-  property :owner, String
+  # the owning application of the metric
+  property :application, String
+
+  # the owning user of the metric
+  property :user, String
 
   # the source of the metric
   property :source, String
@@ -28,16 +31,32 @@ class DataPoint
 
   # --- INDEX DEFS ---
 
-  index :owner, String do
-  	"#{self.owner}"
+  index :application, String do
+  	"#{self.application}"
   end
 
   index :time, String do
   	"#{self.time.iso8601(6)}"
   end
 
-  index :owner_time, String do
-  	"#{self.owner}-#{self.time.iso8601(6)}"
+  index :application_time, String do
+  	"#{self.application}-#{self.time.iso8601(6)}"
+  end
+
+  index :user, String do
+    "#{self.user}"
+  end
+
+  index :user_time, String do
+    "#{self.user}-#{self.time.iso8601(6)}"
+  end
+
+  index :application_user, String do
+    "#{self.application}-#{self.user}"
+  end
+
+  index :application_user_time, String do
+    "#{self.application}-#{self.user}-#{self.time.iso8601(6)}"
   end
 
   # --- END INDEX DEFS ---

@@ -8,7 +8,7 @@ class DataPointDocument
   after_save :update_statistics
 
   def update_statistics
-    id = 'data_point_document_statistic'
+    id = "#{self.data_point.application}"
     counter = CounterDocument.find(id) || CounterDocument.new
     counter.key = id
     counter.update_with self.data_point
