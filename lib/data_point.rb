@@ -6,8 +6,11 @@ class DataPoint
 
   # --- PROPERTIES ---
 
-  # the name of the metric
-  property :name, String
+  # the type of the metric
+  property :type, String, :presence => true
+
+  # the category of the metric
+  property :category, String, :presence => true
 
   # the value of the metric
   property :value, Integer, :presence => true
@@ -16,10 +19,13 @@ class DataPoint
   property :unit, String
 
   # the time the metric was recorded
-  property :time, Time
+  property :time, Time, :presence => true
+
+  # the batch size used to record the metric
+  property :batch_size, Integer, :presence => true
 
   # the owning application of the metric
-  property :application, String
+  property :application, String, :presence => true
 
   # the owning user of the metric
   property :user, String
@@ -57,6 +63,10 @@ class DataPoint
 
   index :application_user_time, String do
     "#{self.application}-#{self.user}-#{self.time.iso8601(6)}"
+  end
+
+  index :application_type_category_time, String do
+    "#{self.application}-#{self.type}-#{}{self.category}-#{self.time.iso8601(6)}"
   end
 
   # --- END INDEX DEFS ---

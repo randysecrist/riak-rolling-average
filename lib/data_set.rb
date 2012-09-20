@@ -149,7 +149,7 @@ class DataSet
     data.each do |triple|
       ts = triple.data['time']
       date_key = "#{ts.strftime("%Y-%m-%d")}"
-      l_bytes += triple.data['bytes']
+      l_bytes += triple.data['bytes'].to_f
       l_count += triple.data['count']
 
       dups.store(date_key, 0) if !dups.has_key?(date_key)

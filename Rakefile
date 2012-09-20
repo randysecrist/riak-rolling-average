@@ -50,10 +50,12 @@ namespace(:example) do
     count = 0
     data.each do |triple|
       dp = DataPoint.new(
-        :unit => 'bytes',
-        :name => 'storage',
+        :type => 'storage',
+        :category => 'write',
         :value => triple.data['bytes'],
+        :unit => 'bytes',
         :time => triple.data['time'],
+        :batch_size => triple.data['count'],
         :application => triple.application,
         :user => triple.user
       )
