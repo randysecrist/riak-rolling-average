@@ -21,14 +21,14 @@ class TestExample < Test::Unit::TestCase
     total_expected_count = 5000
     total_expected_sum = 2172267113.0
 
-    # assertions
-
-    #counter = CounterDocument.find('data_point_document_statistic')
+    # get stats doc for each app
     app_one = CounterDocument.find('dev1')
     app_two = CounterDocument.find('dev2')
     app_three = CounterDocument.find('dev3')
     app_four = CounterDocument.find('dev4')
     app_five = CounterDocument.find('dev5')
+
+    # assertions
     assert_equal total_expected_count, (
       app_one.count + app_two.count + app_three.count + app_four.count + app_five.count
     )

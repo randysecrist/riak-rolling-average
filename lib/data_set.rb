@@ -97,7 +97,7 @@ class DataSet
   # ----- CALCULATED ----- #
 
   def sum_by_application(application, date_range=nil)
-    filtered = (date_range == nil) ? @data.select {|i| i.application == application} : @data.select {|i| i.application == application && date_range.cover?(i.data['time'])}
+    filtered = filter_by_app_with_range(application, date_range)
     return calculate_stats(filtered, true)[0]
   end
 
@@ -111,7 +111,21 @@ class DataSet
     return calculate_stats(filtered, true)[0]
   end
 
+  def count_by_application(application, date_range=nil)
+    filtered = filter_by_app_with_range(application, date_range)
+    return calculate_stats(filtered, true)[1]
+  end
+
+  def average_by_application(application, date_range=nil)
+    filtered = filter_by_app_with_range(application, date_range)
+    return calculate_stats(filtered, true)[0] / calculate_stats(filtered, true)[1]
+  end
+
   private
+
+  def filter_by_app_with_range(application, date_range)
+    (date_range == nil) ? @data.select {|i| i.application == application} : @data.select {|i| i.application == application && date_range.cover?(i.data['time'])}
+  end
 
   def self.parse(input)
     rtnval = []
