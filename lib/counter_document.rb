@@ -10,14 +10,21 @@ class CounterDocument
   end
 
   # a precalculated running total of a data point's value
-  def sum
+  def sum(range = nil)
     return 0 if self.client_data == nil
     begin
-      self.client_data.map{|h| h[1]['total']['sum']}.inject(0, :+)
-
+      return self.client_data.map{|h| h[1]['total']['sum']}.inject(0, :+)
     rescue TypeError
       raise self.client_data.map{|h| h[1]['total']['sum']}.inspect
-    end
+    end if range == nil
+
+    return self.client_data.map do |h|
+      daily_keys = h[1]['daily'].keys.select do |k|
+        t = Time.parse(k)
+        range.cover?(t)
+      end
+      daily_keys.inject(0) {|sum,i| sum + h[1]['daily'][i]['sum']}
+    end[0]
   end
 
   # a precalculated running total of the number of data points
@@ -59,7 +66,9 @@ class CounterDocument
     self.reload
     self.client_data ||= {}
 
-    counter = self.client_data[Client.id] || { 'daily' => {}, 'monthly' => {}, 'total' => { 'sum' => 0, 'count' => 0, 'batch_size' => 0 } }
+    counter = self.client_data[Client.id] || {
+      'daily' => {}, 'monthly' => {}, 'total' => { 'sum' => 0, 'count' => 0, 'batch_size' => 0 }
+    }
 
     # update daily
     day_key = "#{data_point.time.strftime("%Y%m%d")}"

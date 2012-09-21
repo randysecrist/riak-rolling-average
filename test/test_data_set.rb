@@ -55,7 +55,7 @@ class DataSetTest < Test::Unit::TestCase
     # get the last 7 days or so
     distribution = @ds.distribution_by_date
     unless distribution.length < 7
-      range = Time.parse(distribution[distribution.length - 7][0])..Time.parse(distribution[distribution.length - 1][0])
+      range = Time.parse("#{distribution[distribution.length - 7][0]} 00:00:00 UTC")..Time.parse("#{distribution[distribution.length - 1][0]} 00:00:00 UTC")
       range_sum = @ds.data.select {|i| range.cover?(i.data['time'])}.inject(0) {|sum,j| sum + j.data['bytes']}
       assert_equal range_sum, @ds.sum_by_period(range)
 

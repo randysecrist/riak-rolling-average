@@ -124,7 +124,9 @@ class DataSet
   private
 
   def filter_by_app_with_range(application, date_range)
-    (date_range == nil) ? @data.select {|i| i.application == application} : @data.select {|i| i.application == application && date_range.cover?(i.data['time'])}
+    (date_range == nil) ? @data.select {|i| i.application == application} : @data.select do |i|
+      i.application == application && date_range.cover?(i.data['time'])
+    end
   end
 
   def self.parse(input)

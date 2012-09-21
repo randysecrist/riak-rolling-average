@@ -2,6 +2,9 @@ require File.expand_path('../helper', __FILE__)
 
 class TestExample < Test::Unit::TestCase
   def setup
+    CounterDocument.destroy_all
+    DataPointDocument.destroy_all
+
     pids = []
     start_time = Time.now
 
