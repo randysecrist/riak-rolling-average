@@ -18,13 +18,23 @@ class CounterDocument
       raise self.client_data.map{|h| h[1]['total']['sum']}.inspect
     end if range == nil
 
+    month_boundary = period_is_month_bound(range)
+
     return self.client_data.map do |h|
       daily_keys = h[1]['daily'].keys.select do |k|
         t = Time.parse(k)
         range.cover?(t)
       end
       daily_keys.inject(0) {|sum,i| sum + h[1]['daily'][i]['sum']}
-    end[0]
+    end[0] unless month_boundary
+
+    return self.client_data.map do |h|
+      monthly_keys = h[1]['monthly'].keys.select do |k|
+        t = Time.parse("#{k}01 00:00:00 UTC")
+        range.cover?(t)
+      end
+      monthly_keys.inject(0) {|sum,i| sum + h[1]['monthly'][i]['sum']}
+    end[0] if month_boundary
   end
 
   # a precalculated running total of the number of data points
@@ -52,6 +62,36 @@ class CounterDocument
     rescue TypeError
       raise self.client_data.map{|h| h[1]['total']['batch_size']}.inspect
     end
+  end
+
+  # --- Period Accessors --- #
+
+  def monthly_keys
+    self.client_data['client']['monthly'].keys
+  end
+
+  def daily_keys
+    self.client_data['client']['daily'].keys
+  end
+
+  def self.get_period_for(key, type)
+    if type == :monthly || type == :month
+      t0 = Time.parse("#{key}01 00:00:00 UTC")
+      t1 = t0.end_of_month
+    else
+      t0 = Time.parse("#{key} 00:00:00 UTC")
+      t1 = t0.end_of_day
+    end
+    return t0..t1
+  end
+
+  def self.get_periods_for(array, type)
+    array.map {|key| CounterDocument.get_period_for(key, type)}
+  end
+
+  # returns the entire period (on a month boundary) covered by this counter
+  def covered_period
+    Time.parse("#{monthly_keys.sort[0]}01 00:00:00 UTC")..Time.parse("#{monthly_keys.sort[monthly_keys.length-1]}01 00:00:00 UTC").end_of_month
   end
 
   # --- CRDT State Management --- #
@@ -106,6 +146,12 @@ class CounterDocument
       end
     end
     self.client_data = resolved
+  end
+
+  private
+
+  def period_is_month_bound(period)
+    return period.begin == period.begin.utc.beginning_of_month && period.end == period.end.utc.end_of_month
   end
 
 end

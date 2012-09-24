@@ -15,7 +15,7 @@ class TestCounterScopes < Test::Unit::TestCase
     @category = 'write'
   end
 
-  def test_daily_scope
+  def test_period_operations
     generate_data_for_test
 
     # 2)  test check counter for daily accuracy
@@ -33,15 +33,26 @@ class TestCounterScopes < Test::Unit::TestCase
     assert_equal @ds.sum_by_application('healthy_hospital_generator', period), counters[3].sum(period)
 
     # monthly total accuracy
+    month_totals = {}
     # do all days within a month == total for that month?
-  end
+    counters[0].daily_keys.sort.each do |day_key|
+      day_range = CounterDocument.get_period_for(day_key, :daily)
+      month_key = "#{day_range.begin.strftime("%Y%m")}"
 
-  def test_monthly_scope
-    # data set vs counter (range flavor)
-    # do monthly totals match
+      cnt = 0 unless month_totals.has_key?(month_key)
+      cnt = month_totals[month_key] if month_totals.has_key?(month_key)
 
-    # monthly total accuracy
-    # do all months == totals
+      month_totals.store(month_key, cnt += counters[0].sum(day_range))
+    end
+    periods_to_check = CounterDocument.get_periods_for(counters[0].monthly_keys.sort, :month)
+    periods_to_check.each do |period|
+      month_key = period.begin.strftime("%Y%m")
+      assert_equal month_totals[month_key], counters[0].sum(period)
+    end
+
+    # do all months add up to the counter total?
+    all_months = counters[1].covered_period
+    assert_equal counters[1].sum, counters[1].sum(all_months)
   end
 
   def test_total_scope
