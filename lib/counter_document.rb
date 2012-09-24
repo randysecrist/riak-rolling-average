@@ -11,30 +11,12 @@ class CounterDocument
 
   # a precalculated running total of a data point's value
   def sum(range = nil)
-    return 0 if self.client_data == nil
-    begin
-      return self.client_data.map{|h| h[1]['total']['sum']}.inject(0, :+)
-    rescue TypeError
-      raise self.client_data.map{|h| h[1]['total']['sum']}.inspect
-    end if range == nil
+    calculate('sum', range)
+  end
 
-    month_boundary = period_is_month_bound(range)
-
-    return self.client_data.map do |h|
-      daily_keys = h[1]['daily'].keys.select do |k|
-        t = Time.parse(k)
-        range.cover?(t)
-      end
-      daily_keys.inject(0) {|sum,i| sum + h[1]['daily'][i]['sum']}
-    end[0] unless month_boundary
-
-    return self.client_data.map do |h|
-      monthly_keys = h[1]['monthly'].keys.select do |k|
-        t = Time.parse("#{k}01 00:00:00 UTC")
-        range.cover?(t)
-      end
-      monthly_keys.inject(0) {|sum,i| sum + h[1]['monthly'][i]['sum']}
-    end[0] if month_boundary
+  # a precalculated running total of a data point's batch size
+  def batch_size(range = nil)
+    calculate('batch_size', range)
   end
 
   # a precalculated running total of the number of data points
@@ -48,20 +30,10 @@ class CounterDocument
     end
   end
 
+  # a precalculated average of the (total sum / total batch size)
   def batch_average
     return self.sum / self.batch_size unless self.batch_size == 0
     return 0
-  end
-
-  # a precalculated running total of a data point's batch size
-  def batch_size
-    return 0 if self.client_data == nil
-    begin
-      self.client_data.map{|h| h[1]['total']['batch_size']}.inject(0, :+)
-
-    rescue TypeError
-      raise self.client_data.map{|h| h[1]['total']['batch_size']}.inspect
-    end
   end
 
   # --- Period Accessors --- #
@@ -152,6 +124,33 @@ class CounterDocument
 
   def period_is_month_bound(period)
     return period.begin == period.begin.utc.beginning_of_month && period.end == period.end.utc.end_of_month
+  end
+
+  def calculate(metric, range = nil)
+    return 0 if self.client_data == nil
+    begin
+      return self.client_data.map{|h| h[1]['total'][metric]}.inject(0, :+)
+    rescue TypeError
+      raise self.client_data.map{|h| h[1]['total'][metric]}.inspect
+    end if range == nil
+
+    month_boundary = period_is_month_bound(range)
+
+    return self.client_data.map do |h|
+      daily_keys = h[1]['daily'].keys.select do |k|
+        t = Time.parse(k)
+        range.cover?(t)
+      end
+      daily_keys.inject(0) {|sum,i| sum + h[1]['daily'][i][metric]}
+    end[0] unless month_boundary
+
+    return self.client_data.map do |h|
+      monthly_keys = h[1]['monthly'].keys.select do |k|
+        t = Time.parse("#{k}01 00:00:00 UTC")
+        range.cover?(t)
+      end
+      monthly_keys.inject(0) {|sum,i| sum + h[1]['monthly'][i][metric]}
+    end[0] if month_boundary
   end
 
 end
