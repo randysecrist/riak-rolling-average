@@ -10,14 +10,7 @@ GIT
       multi_json (~> 1.0)
 
 GIT
-  remote: git://github.com/mark-moseley/linecache
-  revision: 869c6a65155068415925067e480741bd0a71527e
-  specs:
-    linecache19 (0.5.12)
-      ruby_core_source (>= 0.1.4)
-
-GIT
-  remote: git://github.com/seancribbs/ripple.git
+  remote: git://github.com/basho/ripple.git
   revision: c68106a8a431cbef6be1ad79a5080359a9f7f540
   ref: c68106a8a431cbef6be1ad79a5080359a9f7f540
   specs:
@@ -26,6 +19,13 @@ GIT
       activesupport (>= 3.0.0, < 3.3.0)
       riak-client (~> 1.0.0)
       tzinfo
+
+GIT
+  remote: git://github.com/mark-moseley/linecache
+  revision: 869c6a65155068415925067e480741bd0a71527e
+  specs:
+    linecache19 (0.5.12)
+      ruby_core_source (>= 0.1.4)
 
 GEM
   remote: https://rubygems.org/
