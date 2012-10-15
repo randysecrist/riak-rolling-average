@@ -22,7 +22,8 @@ class TestExample < Test::Unit::TestCase
 
   def test_counter_operations
     total_expected_count = 5000
-    total_expected_sum = 2172267113.0
+    total_expected_sum = 9475678.0
+    total_expected_batch_size = -18483
 
     # get stats doc for each app
     app_one = CounterDocument.find('dev1-storage-write')
@@ -38,23 +39,26 @@ class TestExample < Test::Unit::TestCase
     assert_equal total_expected_sum, (
       app_one.sum + app_two.sum + app_three.sum + app_four.sum + app_five.sum
     )
+    assert_equal total_expected_batch_size, (
+      app_one.batch_size + app_two.batch_size + app_three.batch_size + app_four.batch_size + app_five.batch_size
+    )
 
-    assert_equal 1485860, app_one.batch_size
-    assert_equal 1559225, app_two.batch_size
-    assert_equal 1555582, app_three.batch_size
-    assert_equal 1502721, app_four.batch_size
-    assert_equal 1408799, app_five.batch_size
+    assert_equal -20450,  app_one.batch_size
+    assert_equal 28249,  app_two.batch_size
+    assert_equal 21664,  app_three.batch_size
+    assert_equal -43700, app_four.batch_size
+    assert_equal -4246,  app_five.batch_size
 
-    assert_equal 431338.97025641025, app_one.average
-    assert_equal 433609.16826923075, app_two.average
-    assert_equal 440314.68186226964, app_three.average
-    assert_equal 443169.27125506074, app_four.average
-    assert_equal 423335.8229813665, app_five.average
+    assert_equal -15503.939637826961, app_one.average
+    assert_equal 10376.951771653543, app_two.average
+    assert_equal 30027.583072100315, app_three.average
+    assert_equal -21851.51921182266, app_four.average
+    assert_equal 7648.827111984283, app_five.average
 
-    assert_equal 283.0384396914918, app_one.batch_average
-    assert_equal 289.2164601003704, app_two.batch_average
-    assert_equal 291.8293198301343, app_three.batch_average
-    assert_equal 291.3722773555437, app_four.batch_average
-    assert_equal 290.2773248703328, app_five.batch_average
+    assert_equal 753.5900244498778,  app_one.batch_average
+    assert_equal 373.216149244221,   app_two.batch_average
+    assert_equal 1326.4585025849335, app_three.batch_average
+    assert_equal 507.5352860411899,  app_four.batch_average
+    assert_equal -1833.8450306170514, app_five.batch_average
   end
 end

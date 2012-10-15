@@ -38,13 +38,16 @@ class DataSet
 
       # usage variance
       aprox_avg_value_size = 290
-      upper_count = 1 + Random.rand(3000)
+      upper_count = Random.rand(-3000..3000)
 
       # generate a summation event (bytes) for a count of items
       ts = (days.days + hours.hours + minutes.minutes + seconds.seconds).ago
+      size_offset = (upper_count != 0 ? upper_count  : 1 + upper_count).abs
+      size = 1 + Random.rand((aprox_avg_value_size * 2) * size_offset)
+      size = upper_count.phase == 0 ? size : -size
       hash = {
         'time' => ts,
-        'bytes' => 1 + Random.rand((aprox_avg_value_size * 2) * upper_count),
+        'bytes' => size,
         'count' => upper_count
       }
 
